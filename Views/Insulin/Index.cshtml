@@ -1,11 +1,8 @@
 ﻿@{
-    Layout = null;  // Disable layout to remove header/footer
-    ViewData["Title"] = "Insulin Calculator";
-
-    // Set default values for the variables
-    var insulin = ViewBag.Insulin != null ? ViewBag.Insulin.ToString() : string.Empty;
-    var insulinCorrection = ViewBag.InsulinCorrection != null ? ViewBag.InsulinCorrection.ToString() : string.Empty;
-    var insulinTotal = ViewBag.InsulinTotal != null ? ViewBag.InsulinTotal.ToString() : string.Empty;
+    Layout = null;
+    var insulin = ViewBag.Insulin != null ? ViewBag.Insulin : "";
+    var insulinCorrection = ViewBag.InsulinCorrection != null ? ViewBag.InsulinCorrection : "";
+    var insulinTotal = ViewBag.InsulinTotal != null ? ViewBag.InsulinTotal : "";
 }
 
 <!DOCTYPE html>
@@ -18,51 +15,123 @@
             padding: 20px;
         }
 
-        input, select {
-            margin: 5px 0;
+        table {
+            width: 60%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        .label {
+            font-weight: bold;
         }
 
         .result {
-            margin-top: 20px;
+            background-color: #FFEB3B;
             font-weight: bold;
         }
+
+        .hard-coded {
+            margin-top: 20px;
+        }
     </style>
+    <script>
+        // JavaScript to dynamically update values based on the meal selection and inputs
+        const ratios = {
+            "Breakfast": 22,
+            "Lunch": 18,
+            "Dinner": 15,
+            "Supper": 28
+        };
+
+        function roundToNearestHalf(num) {
+            return Math.round(num * 2) / 2;
+        }
+
+        function updateValues() {
+            const meal = document.getElementById("meal-select").value;
+            const bgLevel = parseFloat(document.getElementById("bgLevel").value) || 0;
+            const mealCarbs = parseFloat(document.getElementById("mealCarbs").value) || 0;
+
+            // Get the ratio for the selected meal
+            const ratio = ratios[meal] || 0;
+            document.getElementById("meal-ratio").textContent = `1:${ratio}`;
+
+            // Calculate insulin based on carbs and ratio
+            const insulin = mealCarbs / ratio;
+            const roundedInsulin = roundToNearestHalf(insulin);
+
+            // Example correction (simple example, you might need to adjust this logic)
+            const correction = bgLevel > 10 ? 2.5 : 0;
+
+            // Calculate total insulin
+            const insulinTotal = roundedInsulin + correction;
+
+            // Update the display
+            document.getElementById("insulin").textContent = insulin.toFixed(2);
+            document.getElementById("roundedInsulin").textContent = roundedInsulin;
+            document.getElementById("insulinCorrection").textContent = correction;
+            document.getElementById("insulinTotal").textContent = insulinTotal;
+        }
+
+        // Event listeners for real-time updates
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("meal-select").addEventListener("change", updateValues);
+            document.getElementById("bgLevel").addEventListener("input", updateValues);
+            document.getElementById("mealCarbs").addEventListener("input", updateValues);
+        });
+    </script>
 </head>
 <body>
     <h2>Insulin Calculator</h2>
 
-    <form method="post" asp-action="Calculate" asp-controller="Insulin">
-        <div>
-            <label>Meal</label>
-            <select name="meal">
-                <option value="Breakfast">Breakfast</option>
-                <option value="Lunch">Lunch</option>
-                <option value="Dinner">Dinner</option>
-                <option value="Supper">Supper</option>
-            </select>
-        </div>
-        <div>
-            <label>BG (mmol/L)</label>
-            <input type="number" name="bgLevel" required />
-        </div>
-        <div>
-            <label>Meal Carbs (g)</label>
-            <input type="number" name="mealCarbs" required />
-        </div>
-        <button type="submit">Calculate</button>
+    <form>
+        <table border="1">
+            <tr>
+                <td class="label">Meal</td>
+                <td>
+                    <select id="meal-select" name="meal">
+                        <option value="Breakfast">Breakfast</option>
+                        <option value="Lunch">Lunch</option>
+                        <option value="Dinner">Dinner</option>
+                        <option value="Supper">Supper</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="label">Ratio</td>
+                <td id="meal-ratio">1:22</td> <!-- Default value -->
+            </tr>
+            <tr>
+                <td class="label">BG (mmol/L)</td>
+                <td><input type="number" id="bgLevel" name="bgLevel" required /></td>
+            </tr>
+            <tr>
+                <td class="label">Meal Carbs (g)</td>
+                <td><input type="number" id="mealCarbs" name="mealCarbs" required /></td>
+            </tr>
+            <tr>
+                <td class="label">Insulin</td>
+                <td id="insulin"></td>
+            </tr>
+            <tr>
+                <td class="label">Insulin Rounded</td>
+                <td id="roundedInsulin"></td>
+            </tr>
+            <tr>
+                <td class="label">Insulin Correction</td>
+                <td id="insulinCorrection"></td>
+            </tr>
+            <tr>
+                <td class="label result">Insulin Total</td>
+                <td class="result" id="insulinTotal"></td>
+            </tr>
+        </table>
     </form>
 
-    <!-- Display results on the same page -->
-    @if (!string.IsNullOrEmpty(insulin))
-    {
-        <div class="result">
-            <p>Insulin: @insulin</p>
-            <p>Insulin Correction: @insulinCorrection</p>
-            <p>Insulin Total: @insulinTotal</p>
-        </div>
-    }
-
-    <!-- Display hard-coded items from the spreadsheet for reference -->
     <div class="hard-coded">
         <h3>Meal Ratios</h3>
         <ul>

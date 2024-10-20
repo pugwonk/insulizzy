@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Insulizzy.Models
 {
@@ -17,17 +18,16 @@ namespace Insulizzy.Models
             { "Supper", 28 }
         };
 
-        // Hard-coded correction table (example values)
+        // Hard-coded correction table (example values from your spreadsheet)
         private static readonly List<CorrectionEntry> CorrectionTable = new List<CorrectionEntry>
         {
-            new CorrectionEntry { CorrectionFactor = 1.5, LowBG = 13.5, HighBG = 14.9, ExtraUnits = 5 },
-            new CorrectionEntry { CorrectionFactor = 1.5, LowBG = 15, HighBG = 16.4, ExtraUnits = 6 },
+            new CorrectionEntry { LowBG = 13.5, HighBG = 14.9, ExtraUnits = 3.5 },
+            new CorrectionEntry { LowBG = 15, HighBG = 16.4, ExtraUnits = 4.0 },
             // Add more entries here...
         };
 
         private class CorrectionEntry
         {
-            public double CorrectionFactor { get; set; }
             public double LowBG { get; set; }
             public double HighBG { get; set; }
             public double ExtraUnits { get; set; }
@@ -41,6 +41,11 @@ namespace Insulizzy.Models
             return (double)MealCarbs / ratio;
         }
 
+        public double RoundInsulin(double insulin)
+        {
+            return Math.Round(insulin * 2, MidpointRounding.AwayFromZero) / 2;
+        }
+
         public double CalculateInsulinCorrection()
         {
             foreach (var entry in CorrectionTable)
@@ -50,12 +55,16 @@ namespace Insulizzy.Models
                     return entry.ExtraUnits;
                 }
             }
-            return 0;
+            return 0; // No correction if not found
         }
 
         public double CalculateInsulinTotal()
         {
-            return CalculateInsulin() + CalculateInsulinCorrection();
+            double insulin = CalculateInsulin();
+            double roundedInsulin = RoundInsulin(insulin);
+            double correction = CalculateInsulinCorrection();
+
+            return roundedInsulin + correction;
         }
     }
 }
