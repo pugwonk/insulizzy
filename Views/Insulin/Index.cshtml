@@ -50,6 +50,7 @@
             </tr>
         </table>
     </div>
+    <div id="walkingSprite" class="walking-sprite walk-frame-1"></div>
 
     <!-- JavaScript Code Here -->
     <script>
@@ -118,5 +119,31 @@
             updateValues();
         });
     </script>
+    <script>
+        function triggerWalkingSprite() {
+            const sprite = document.getElementById("walkingSprite");
+
+            // Show the sprite with animation
+            sprite.classList.add("animated");
+
+            // Hide the sprite after the animation completes (adjust time as needed)
+            setTimeout(() => {
+                sprite.classList.remove("animated");
+            }, 15000); // Matches the 15s duration of the walkAcross animation
+        }
+
+        // Function to randomly trigger the animation occasionally
+        function occasionalSpriteWalk() {
+            const randomTime = Math.floor(Math.random() * 600) + 300; // Between 30s to 1min
+            setTimeout(() => {
+                triggerWalkingSprite();
+                occasionalSpriteWalk(); // Recursively schedule next walk
+            }, randomTime);
+        }
+
+        // Start the occasional walk when the page loads
+        document.addEventListener("DOMContentLoaded", occasionalSpriteWalk);
+    </script>
+
 </body>
 </html>
