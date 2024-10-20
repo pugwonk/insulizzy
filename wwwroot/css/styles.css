@@ -1,0 +1,86 @@
+﻿body {
+    font-family: 'Poppins', Arial, sans-serif;
+    background-color: #f3e5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}
+
+.container {
+    width: 90%;
+    max-width: 400px;
+    background-color: #ffffff;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+h2 {
+    color: #8e44ad;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 8px;
+    text-align: center;
+    border-radius: 8px;
+}
+
+.label {
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.result {
+    background-color: #fdd835;
+    font-weight: bold;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.meal-picker {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+}
+
+.meal-option {
+    background-color: #ffeb3b;
+    padding: 10px;
+    border-radius: 10px;
+    width: 80px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+    .meal-option:hover {
+        background-color: #ffcc00;
+    }
+
+    .meal-option.selected {
+        background-color: #ff9800;
+    }
+
+select, input {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #8e44ad;
+    width: 80%;
+    margin: 8px 0;
+}
+
+@media (max-height: 600px) {
+    body, .container {
+        height: auto;
+    }
+}

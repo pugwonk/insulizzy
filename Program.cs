@@ -5,8 +5,8 @@ builder.Services.AddControllersWithViews(); // This line is necessary to enable 
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline (if you need static files, etc.)
-// app.UseStaticFiles();
+// Configure the HTTP request pipeline
+app.UseStaticFiles(); // Place this before UseRouting()
 
 app.UseRouting();
 
