@@ -6,21 +6,26 @@
     align-items: center;
     height: 100vh;
     margin: 0;
+    padding: 0;
     overflow: hidden;
+    flex-direction: column; /* Ensure content stacks nicely on smaller devices */
 }
 
 .container {
     width: 90%;
-    max-width: 400px;
+    max-width: 600px; /* Slightly larger max-width for better desktop usage */
     background-color: #ffffff;
     border-radius: 15px;
     padding: 20px;
     box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
     text-align: center;
+    flex: 1; /* Allow the container to grow and take available space */
+    overflow-y: auto; /* Ensure scrollable content if needed */
 }
 
 h2 {
     color: #8e44ad;
+    margin-top: 20px; /* Add top margin to avoid pressing against the edge */
 }
 
 table {
@@ -51,6 +56,7 @@ th, td {
     display: flex;
     justify-content: space-around;
     margin: 20px 0;
+    flex-wrap: wrap; /* Wrap to ensure better handling on smaller screens */
 }
 
 .meal-option {
@@ -61,6 +67,7 @@ th, td {
     cursor: pointer;
     transition: background-color 0.3s;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    margin: 5px; /* Add slight margin to prevent crowding */
 }
 
     .meal-option:hover {
@@ -79,8 +86,31 @@ select, input {
     margin: 8px 0;
 }
 
-@media (max-height: 600px) {
-    body, .container {
-        height: auto;
+@media (max-width: 600px) {
+    .container {
+        width: 100%;
+        max-width: none;
+        padding: 10px; /* Adjust padding to use space effectively on mobile */
     }
+
+    .meal-picker {
+        flex-direction: column; /* Stack options vertically on smaller screens */
+        align-items: center;
+    }
+
+    .meal-option {
+        width: 90%; /* Make options full width on mobile */
+    }
+
+    input {
+        width: 90%; /* Adjust input fields to stretch more */
+    }
+
+    table {
+        margin-top: 10px;
+    }
+}
+
+.navbar, .footer {
+    display: none !important;
 }

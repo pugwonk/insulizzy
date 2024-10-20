@@ -1,16 +1,57 @@
-﻿@{
-    Layout = null;
-    var insulin = ViewBag.Insulin != null ? ViewBag.Insulin : "";
-    var insulinCorrection = ViewBag.InsulinCorrection != null ? ViewBag.InsulinCorrection : "";
-    var insulinTotal = ViewBag.InsulinTotal != null ? ViewBag.InsulinTotal : "";
-}
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <title>Insulin Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/styles.css" asp-append-version="true">
+</head>
+<body>
+    <div class="container">
+        <h2>Insulin Calculator</h2>
+
+        <!-- Meal Picker -->
+        <div class="meal-picker">
+            <div class="meal-option" data-meal="Breakfast">Breakfast</div>
+            <div class="meal-option" data-meal="Lunch">Lunch</div>
+            <div class="meal-option" data-meal="Dinner">Dinner</div>
+            <div class="meal-option" data-meal="Supper">Supper</div>
+        </div>
+
+        <!-- Input Fields -->
+        <table>
+            <tr>
+                <td class="label">Ratio</td>
+                <td id="meal-ratio">1:22</td> <!-- Default value shown here -->
+            </tr>
+            <tr>
+                <td class="label">BG (mmol/L)</td>
+                <td><input type="number" id="bgLevel" name="bgLevel" required /></td>
+            </tr>
+            <tr>
+                <td class="label">Meal Carbs (g)</td>
+                <td><input type="number" id="mealCarbs" name="mealCarbs" required /></td>
+            </tr>
+            <tr>
+                <td class="label">Insulin</td>
+                <td id="insulin">-</td> <!-- Updated by JavaScript -->
+            </tr>
+            <tr>
+                <td class="label">Insulin Rounded</td>
+                <td id="roundedInsulin">-</td> <!-- Updated by JavaScript -->
+            </tr>
+            <tr>
+                <td class="label">Insulin Correction</td>
+                <td id="insulinCorrection">-</td> <!-- Updated by JavaScript -->
+            </tr>
+            <tr>
+                <td class="label result">Insulin Total</td>
+                <td class="result" id="insulinTotal">-</td> <!-- Updated by JavaScript -->
+            </tr>
+        </table>
+    </div>
+
+    <!-- JavaScript Code Here -->
     <script>
         const ratios = {
             "Breakfast": 22,
@@ -25,35 +66,42 @@
 
         function updateValues() {
             const selectedMeal = document.querySelector('.meal-option.selected');
-            if (!selectedMeal) return;
+            if (!selectedMeal) return; // Ensure a meal is selected before calculating
 
             const meal = selectedMeal.getAttribute("data-meal");
             const bgLevel = parseFloat(document.getElementById("bgLevel").value) || 0;
             const mealCarbs = parseFloat(document.getElementById("mealCarbs").value) || 0;
 
-            const ratio = ratios[meal] || 0;
+            // Get the ratio for the selected meal
+            const ratio = ratios[meal];
+            if (!ratio) return; // Ensure a valid ratio is used
             document.getElementById("meal-ratio").textContent = `1:${ratio}`;
 
+            // Calculate insulin based on carbs and ratio
             const insulin = mealCarbs / ratio;
             const roundedInsulin = roundToNearestHalf(insulin);
 
-            const correction = bgLevel > 10 ? 2.5 : 0;
+            // Example correction logic (adjust as needed)
+            const correction = (bgLevel > 10) ? 2.5 : 0;
 
+            // Total insulin to administer
             const insulinTotal = roundedInsulin + correction;
 
+            // Update the display
             document.getElementById("insulin").textContent = insulin.toFixed(2);
-            document.getElementById("roundedInsulin").textContent = roundedInsulin;
-            document.getElementById("insulinCorrection").textContent = correction;
-            document.getElementById("insulinTotal").textContent = insulinTotal;
+            document.getElementById("roundedInsulin").textContent = roundedInsulin.toFixed(1);
+            document.getElementById("insulinCorrection").textContent = correction.toFixed(1);
+            document.getElementById("insulinTotal").textContent = insulinTotal.toFixed(1);
         }
 
         function selectMeal(mealElement) {
             const options = document.querySelectorAll('.meal-option');
             options.forEach(opt => opt.classList.remove('selected'));
             mealElement.classList.add('selected');
-            updateValues();
+            updateValues(); // Call updateValues after selecting a meal
         }
 
+        // Ensure everything is set up correctly
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("bgLevel").addEventListener("input", updateValues);
             document.getElementById("mealCarbs").addEventListener("input", updateValues);
@@ -64,50 +112,11 @@
                     selectMeal(this);
                 });
             });
+
+            // Set a default selection (e.g., "Breakfast")
+            mealOptions[0].classList.add('selected');
+            updateValues();
         });
     </script>
-</head>
-<body>
-    <div class="container">
-        <h2>Insulin Calculator</h2>
-
-        <div class="meal-picker">
-            <div class="meal-option" data-meal="Breakfast">Breakfast</div>
-            <div class="meal-option" data-meal="Lunch">Lunch</div>
-            <div class="meal-option" data-meal="Dinner">Dinner</div>
-            <div class="meal-option" data-meal="Supper">Supper</div>
-        </div>
-
-        <table>
-            <tr>
-                <td class="label">Ratio</td>
-                <td id="meal-ratio">1:22</td>
-            </tr>
-            <tr>
-                <td class="label">BG (mmol/L)</td>
-                <td><input type="number" id="bgLevel" name="bgLevel" required /></td>
-            </tr>
-            <tr>
-                <td class="label">Meal Carbs (g)</td>
-                <td><input type="number" id="mealCarbs" name="mealCarbs" required /></td>
-            </tr>
-            <tr>
-                <td class="label">Insulin</td>
-                <td id="insulin"></td>
-            </tr>
-            <tr>
-                <td class="label">Insulin Rounded</td>
-                <td id="roundedInsulin"></td>
-            </tr>
-            <tr>
-                <td class="label">Insulin Correction</td>
-                <td id="insulinCorrection"></td>
-            </tr>
-            <tr>
-                <td class="label result">Insulin Total</td>
-                <td class="result" id="insulinTotal"></td>
-            </tr>
-        </table>
-    </div>
 </body>
 </html>
