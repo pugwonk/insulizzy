@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Insulin Calculator";
+}
+
+<h2>Insulin Calculator</h2>
+
+<form method="post" asp-action="Calculate" asp-controller="Insulin">
+    <div>
+        <label>Meal</label>
+        <select name="meal">
+            <option value="Breakfast">Breakfast</option>
+            <option value="Lunch">Lunch</option>
+            <option value="Dinner">Dinner</option>
+            <option value="Supper">Supper</option>
+        </select>
+    </div>
+    <div>
+        <label>BG (mmol/L)</label>
+        <input type="number" name="bgLevel" required />
+    </div>
+    <div>
+        <label>Meal Carbs (g)</label>
+        <input type="number" name="mealCarbs" required />
+    </div>
+    <button type="submit">Calculate</button>
+</form>
