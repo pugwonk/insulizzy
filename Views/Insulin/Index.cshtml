@@ -1,26 +1,82 @@
 ﻿@{
+    Layout = null;  // Disable layout to remove header/footer
     ViewData["Title"] = "Insulin Calculator";
+
+    // Set default values for the variables
+    var insulin = ViewBag.Insulin != null ? ViewBag.Insulin.ToString() : string.Empty;
+    var insulinCorrection = ViewBag.InsulinCorrection != null ? ViewBag.InsulinCorrection.ToString() : string.Empty;
+    var insulinTotal = ViewBag.InsulinTotal != null ? ViewBag.InsulinTotal.ToString() : string.Empty;
 }
 
-<h2>Insulin Calculator</h2>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Insulin Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
 
-<form method="post" asp-action="Calculate" asp-controller="Insulin">
-    <div>
-        <label>Meal</label>
-        <select name="meal">
-            <option value="Breakfast">Breakfast</option>
-            <option value="Lunch">Lunch</option>
-            <option value="Dinner">Dinner</option>
-            <option value="Supper">Supper</option>
-        </select>
+        input, select {
+            margin: 5px 0;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h2>Insulin Calculator</h2>
+
+    <form method="post" asp-action="Calculate" asp-controller="Insulin">
+        <div>
+            <label>Meal</label>
+            <select name="meal">
+                <option value="Breakfast">Breakfast</option>
+                <option value="Lunch">Lunch</option>
+                <option value="Dinner">Dinner</option>
+                <option value="Supper">Supper</option>
+            </select>
+        </div>
+        <div>
+            <label>BG (mmol/L)</label>
+            <input type="number" name="bgLevel" required />
+        </div>
+        <div>
+            <label>Meal Carbs (g)</label>
+            <input type="number" name="mealCarbs" required />
+        </div>
+        <button type="submit">Calculate</button>
+    </form>
+
+    <!-- Display results on the same page -->
+    @if (!string.IsNullOrEmpty(insulin))
+    {
+        <div class="result">
+            <p>Insulin: @insulin</p>
+            <p>Insulin Correction: @insulinCorrection</p>
+            <p>Insulin Total: @insulinTotal</p>
+        </div>
+    }
+
+    <!-- Display hard-coded items from the spreadsheet for reference -->
+    <div class="hard-coded">
+        <h3>Meal Ratios</h3>
+        <ul>
+            <li>Breakfast: 22</li>
+            <li>Lunch: 18</li>
+            <li>Dinner: 15</li>
+            <li>Supper: 28</li>
+        </ul>
+
+        <h3>Correction Table</h3>
+        <p>Correction Factor: 2.5</p>
+
+        <h3>Tresiba</h3>
+        <p>Dosage: 8</p>
     </div>
-    <div>
-        <label>BG (mmol/L)</label>
-        <input type="number" name="bgLevel" required />
-    </div>
-    <div>
-        <label>Meal Carbs (g)</label>
-        <input type="number" name="mealCarbs" required />
-    </div>
-    <button type="submit">Calculate</button>
-</form>
+</body>
+</html>

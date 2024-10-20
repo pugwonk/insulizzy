@@ -1,7 +1,7 @@
 ﻿using Insulizzy.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Insulizzy.Controllers
+namespace YourApp.Controllers
 {
     public class InsulinController : Controller
     {
@@ -24,7 +24,8 @@ namespace Insulizzy.Controllers
             ViewBag.InsulinCorrection = calculator.CalculateInsulinCorrection();
             ViewBag.InsulinTotal = calculator.CalculateInsulinTotal();
 
-            return View("Result");
+            // Instead of returning a separate Result view, we return the Index view with the data.
+            return View("Index");
         }
     }
 }
