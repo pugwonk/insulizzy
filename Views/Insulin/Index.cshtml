@@ -183,22 +183,27 @@
             const insulinField = document.getElementById("insulin").getBoundingClientRect();
             spriteElement.style.top = `${insulinField.top + window.scrollY - 15}px`; // Adjust to align properly
 
-            const interval = setInterval(() => {
+            function moveSprite() {
                 // Move the sprite towards the "Insulin" field
-                positionX += 10; // Increase speed to make it move faster
+                positionX += 5; // Adjust speed for smoother movement
                 spriteElement.style.left = `${positionX}px`;
 
-                // Change sprite frame by switching image source
-                frameIndex = (frameIndex + 1) % spriteImages.length;
-                spriteElement.src = spriteImages[frameIndex];
+                // Change sprite frame every 100ms
+                if (positionX % 20 === 0) {
+                    frameIndex = (frameIndex + 1) % spriteImages.length;
+                    spriteElement.src = spriteImages[frameIndex];
+                }
 
                 // Stop and position at the "Insulin" field when close
                 const spriteRect = spriteElement.getBoundingClientRect();
-                if (positionX >= (insulinField.left - spriteRect.width - 20)) {
-                    clearInterval(interval);
-                    spriteElement.style.display = "none";
+                if (positionX < (insulinField.left - spriteRect.width - 20)) {
+                    requestAnimationFrame(moveSprite); // Continue moving until aligned
+                } else {
+                    spriteElement.style.display = "none"; // Hide once finished
                 }
-            }, 50); // Adjust time between frame updates for faster walking speed
+            }
+
+            requestAnimationFrame(moveSprite);
         }
 
         document.getElementById("calculateButton").addEventListener("click", () => {
