@@ -22,7 +22,7 @@
         <table>
             <tr>
                 <td class="label">Ratio</td>
-                <td id="meal-ratio">1:22</td> <!-- Default value shown here -->
+                <td id="meal-ratio">1:22</td>
             </tr>
             <tr>
                 <td class="label">BG (mmol/L)</td>
@@ -49,8 +49,13 @@
                 <td class="result" id="insulinTotal">-</td> <!-- Updated by JavaScript -->
             </tr>
         </table>
+
+        <!-- Add the Calculate Button -->
+        <button id="calculateButton">Calculate</button>
     </div>
-    <div id="walkingSprite" class="walking-sprite walk-frame-1"></div>
+
+    <!-- Add walking sprite at the end of your HTML -->
+    <img id="walkingSprite" style="width: 48px; height: 48px; position: fixed; bottom: 50px; z-index: 1000; display: none;" />
 
     <!-- JavaScript Code Here -->
     <script>
@@ -120,30 +125,105 @@
         });
     </script>
     <script>
-        function triggerWalkingSprite() {
-            const sprite = document.getElementById("walkingSprite");
+        const spriteElement = document.getElementById("walkingSprite");
+        const spriteImages = [
+            '/images/sprite-step1.png',
+            '/images/sprite-step2.png',
+            '/images/sprite-step3.png'
+        ];
 
-            // Show the sprite with animation
-            sprite.classList.add("animated");
-
-            // Hide the sprite after the animation completes (adjust time as needed)
-            setTimeout(() => {
-                sprite.classList.remove("animated");
-            }, 15000); // Matches the 15s duration of the walkAcross animation
+        function roundToNearestHalf(num) {
+            return Math.round(num * 2) / 2;
         }
 
-        // Function to randomly trigger the animation occasionally
-        function occasionalSpriteWalk() {
-            const randomTime = Math.floor(Math.random() * 600) + 300; // Between 30s to 1min
-            setTimeout(() => {
-                triggerWalkingSprite();
-                occasionalSpriteWalk(); // Recursively schedule next walk
-            }, randomTime);
+        function updateValues() {
+            const selectedMeal = document.querySelector('.meal-option.selected');
+            if (!selectedMeal) return; // Ensure a meal is selected before calculating
+
+            const meal = selectedMeal.getAttribute("data-meal");
+            const bgLevel = parseFloat(document.getElementById("bgLevel").value) || 0;
+            const mealCarbs = parseFloat(document.getElementById("mealCarbs").value) || 0;
+
+            // Get the ratio for the selected meal
+            const ratio = ratios[meal];
+            if (!ratio) return; // Ensure a valid ratio is used
+            document.getElementById("meal-ratio").textContent = `1:${ratio}`;
+
+            // Calculate insulin based on carbs and ratio
+            const insulin = mealCarbs / ratio;
+            const roundedInsulin = roundToNearestHalf(insulin);
+
+            // Example correction logic (adjust as needed)
+            const correction = (bgLevel > 10) ? 2.5 : 0;
+
+            // Total insulin to administer
+            const insulinTotal = roundedInsulin + correction;
+
+            // Update the display
+            document.getElementById("insulin").textContent = insulin.toFixed(2);
+            document.getElementById("roundedInsulin").textContent = roundedInsulin.toFixed(1);
+            document.getElementById("insulinCorrection").textContent = correction.toFixed(1);
+            document.getElementById("insulinTotal").textContent = insulinTotal.toFixed(1);
         }
 
-        // Start the occasional walk when the page loads
-        document.addEventListener("DOMContentLoaded", occasionalSpriteWalk);
+        function selectMeal(mealElement) {
+            const options = document.querySelectorAll('.meal-option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            mealElement.classList.add('selected');
+            updateValues();
+        }
+
+        function animateSpriteToInsulin() {
+            let positionX = -50; // Start off-screen to the left
+            let frameIndex = 0;
+            spriteElement.style.display = "block";
+            spriteElement.src = spriteImages[0]; // Set initial frame
+
+            // Determine the vertical position to align with the "Insulin" field
+            const insulinField = document.getElementById("insulin").getBoundingClientRect();
+            spriteElement.style.top = `${insulinField.top + window.scrollY - 15}px`; // Adjust to align properly
+
+            const interval = setInterval(() => {
+                // Move the sprite towards the "Insulin" field
+                positionX += 10; // Increase speed to make it move faster
+                spriteElement.style.left = `${positionX}px`;
+
+                // Change sprite frame by switching image source
+                frameIndex = (frameIndex + 1) % spriteImages.length;
+                spriteElement.src = spriteImages[frameIndex];
+
+                // Stop and position at the "Insulin" field when close
+                const spriteRect = spriteElement.getBoundingClientRect();
+                if (positionX >= (insulinField.left - spriteRect.width - 20)) {
+                    clearInterval(interval);
+                    spriteElement.style.display = "none";
+                }
+            }, 50); // Adjust time between frame updates for faster walking speed
+        }
+
+        document.getElementById("calculateButton").addEventListener("click", () => {
+            updateValues(); // Perform calculations
+            animateSpriteToInsulin(); // Trigger sprite animation
+        });
+
+        // Ensure everything is set up correctly
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("bgLevel").addEventListener("input", updateValues);
+            document.getElementById("mealCarbs").addEventListener("input", updateValues);
+
+            const mealOptions = document.querySelectorAll('.meal-option');
+            mealOptions.forEach(option => {
+                option.addEventListener('click', function () {
+                    selectMeal(this);
+                });
+            });
+
+            // Set a default selection (e.g., "Breakfast")
+            mealOptions[0].classList.add('selected');
+            updateValues();
+        });
     </script>
+
 
 </body>
 </html>
